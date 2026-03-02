@@ -21,7 +21,7 @@ int main(void)
 		"out vec4 FragColor;\n"
 		"void main()\n"
 		"{\n"
-		" FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);"
+		" FragColor = vec4(1.0f, 0.2f, 0.2f, 1.0f);"
 		"}\0";
 
 	float verticies[] = {
@@ -30,8 +30,10 @@ int main(void)
 		0.0f, 0.5f, 0.0f
 	};
 
-	unsigned int VBOid;
+	unsigned int VBO;
 	
+	unsigned int VAO;
+
 	unsigned int vertexShader;
 	unsigned int fragmentShader;
 
@@ -46,7 +48,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Im learning OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a triangle", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create GLFW window" << endl;
@@ -64,10 +66,15 @@ int main(void)
 	}
 
 	glViewport(0, 0, 800, 600);
-	glClearColor(1.0f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 
-	glGenBuffers(1, &VBOid);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOid);
+	glGenVertexArrays(1, &VAO);
+
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
 
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -105,10 +112,11 @@ int main(void)
 		cout << "Failed to link shader program\n" << infoLog << endl;
 	}
 
-	glUseProgram(shaderProgram);
-
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 
 
@@ -116,6 +124,10 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

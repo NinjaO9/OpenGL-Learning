@@ -18,7 +18,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a texture", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a moving object", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create GLFW window" << endl;
@@ -64,7 +64,7 @@ int main(void)
 
 	unsigned int texture[2];
 
-	unsigned int EBO[1];
+	unsigned int EBO[2];
 
 	unsigned char* data = stbi_load("container.jpg", &iWidth, &iHeight, &nrChannels, 0);
 
@@ -94,7 +94,7 @@ int main(void)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]); // Use this Element Buffer Object to current VAO
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW); // initialize information inside of EBO
-
+	
 	// Texture loading
 
 	stbi_set_flip_vertically_on_load(true);
@@ -146,8 +146,6 @@ int main(void)
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
 
-	float mixNum = 0.0f;
-
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window, shader);
@@ -161,9 +159,44 @@ int main(void)
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
 		glBindVertexArray(VAO[0]);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+		glm::mat4 trans(1.0f);
+		float time = glm::sin(glfwGetTime());
+
+
+		trans = glm::translate(trans, glm::vec3(0.5, -0.5, 0.0));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+		trans = glm::scale(trans, glm::vec3(time, time, 1.0f));
+
+
+		unsigned int tf = glGetUniformLocation(shader.ID, "transform");
+		glUniformMatrix4fv(tf, 1, GL_FALSE, glm::value_ptr(trans));
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0));
+		trans = glm::scale(trans, glm::vec3(time, time, 1.0f));
+
+		tf = glGetUniformLocation(shader.ID, "transform");
+		glUniformMatrix4fv(tf, 1, GL_FALSE, glm::value_ptr(trans));
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(0.0, 0.0, 0.0));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+		trans = glm::scale(trans, glm::vec3(time, time, 1.0f));
+
+		tf = glGetUniformLocation(shader.ID, "transform");
+		glUniformMatrix4fv(tf, 1, GL_FALSE, glm::value_ptr(trans));
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
 		glBindVertexArray(0);
+
+		
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

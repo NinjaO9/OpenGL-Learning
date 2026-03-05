@@ -20,17 +20,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
+    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.hpp" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="fragmentShaders.fs" />
     <Text Include="vertexShaders.vs" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="awesome-face.png" />
+    <Image Include="container.jpg" />
     <Image Include="wall.jpg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

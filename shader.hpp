@@ -21,11 +21,12 @@ public:
 
 	Shader(const char* vertexPath, const char* fragmentPath);
 
-	void use();
+	void use() const;
 
 	void setBool(const string& name, bool value) const;
 	void setInt(const string& name, int value) const;
 	void setFloat(const string& name, float value) const;
+	void setVec2(const string& name, float value1, float value2) const;
 
 private:
 };

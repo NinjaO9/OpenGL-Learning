@@ -75,7 +75,7 @@ Shader::Shader(const char* vertexPath, const char* fragementPath)
 	glDeleteShader(fragment);
 }
 
-void Shader::use()
+void Shader::use() const
 {
 	glUseProgram(ID);
 }
@@ -93,5 +93,10 @@ void Shader::setInt(const string& name, int value) const
 void Shader::setFloat(const string& name, float value) const
 {
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::setVec2(const string& name, float value1, float value2) const
+{
+	glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
 }
 

@@ -8,28 +8,22 @@ void processInput(GLFWwindow* window);
 
 int main(void)
 {
-	//const char* vertexShaderSource = "#version 330 core\n"
-	//	"layout (location = 0) in vec3 aPos;\n"
-	//	"layout (location = 1) in vec3 aCol;\n"
-	//	"out vec3 ourColor;\n"
-	//	"void main()\n"
-	//	"{\n"
-	//	" gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-	//	" ourColor = aCol;\n"
-	//	"}\0";
-
-	//const char* fragmentShaderSource = "#version 330 core\n"
-	//	"out vec4 FragColor;\n"
-	//	"in vec3 ourColor;\n"
-	//	"void main()\n"
-	//	"{\n"
-	//	" FragColor = vec4(ourColor, 1.0);\n"
-	//	"}\n";
-
 	float verticies[] = {
-		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,0.0f, 1.0f, 0.0f,
 		0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-		0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f
+		0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+	};
+
+	//float colors[] = {
+	//	0.0f, 1.0f, 0.0f,
+	//	0.0f, 0.0f, 1.0f,
+	//	1.0f, 0.0f, 0.0f,
+	//};
+
+	float texCoords[] = {
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.5f, 1.0f
 	};
 
 	unsigned int indicies[] = {
@@ -86,11 +80,22 @@ int main(void)
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	/*glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);*/
 	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+	//glGenerateMipmap()
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	float offset[2] = { 0,0 };
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -99,10 +104,29 @@ int main(void)
 		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		shader.use();
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			offset[0] += 0.0001;
+			shader.setVec2("offset", offset[0], offset[1]);
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			offset[0] -= 0.0001;
+			shader.setVec2("offset", offset[0], offset[1]);
+		}
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			offset[1] += 0.0001;
+			shader.setVec2("offset", offset[0], offset[1]);
+		}
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			offset[1] -= 0.0001;
+			shader.setVec2("offset", offset[0], offset[1]);
+		}
 
 		glBindVertexArray(VAO[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);

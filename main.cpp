@@ -12,7 +12,29 @@ void framebudder_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, Shader& shader);
 
 int main(void)
-{
+{	
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a texture", NULL, NULL);
+	if (window == NULL)
+	{
+		cout << "Failed to create GLFW window" << endl;
+		glfwTerminate();
+		return -1;
+	}
+
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebudder_size_callback);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		cout << "Failed to initalize GLAD" << endl;
+		return -1;
+	}
+
 	float verticies[] = {
 		// Vertexes            // Colors            // Texture
 		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f,// bottom left
@@ -20,12 +42,6 @@ int main(void)
 		0.5f, 0.5f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,// top right
 		0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,// bottom right
 	};
-
-	//float colors[] = {
-	//	0.0f, 1.0f, 0.0f,
-	//	0.0f, 0.0f, 1.0f,
-	//	1.0f, 0.0f, 0.0f,
-	//};
 
 	float texCoords[] = {
 		0.0f, 0.0f,
@@ -51,56 +67,33 @@ int main(void)
 	unsigned int EBO[1];
 
 	unsigned char* data = stbi_load("container.jpg", &iWidth, &iHeight, &nrChannels, 0);
-	
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a texture", NULL, NULL);
-	if (window == NULL)
-	{
-		cout << "Failed to create GLFW window" << endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebudder_size_callback);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		cout << "Failed to initalize GLAD" << endl;
-		return -1;
-	}
 
 	Shader shader("vertexShaders.vs", "fragmentShaders.fs");
 
+	glViewport(0, 0, wWidth, wHeight); // initialize view of window
 
-	glViewport(0, 0, wWidth, wHeight);
+	glGenVertexArrays(2, VAO); // generate buffers for Vertex Array Objects
 
-	glGenVertexArrays(2, VAO);
+	glGenBuffers(1, EBO); // gen buffers for Element Buffer Objects
 
-	glGenBuffers(1, EBO);
+	glGenBuffers(2, VBO); // gen buffers for Vertex Buffer Objects
 
-	glGenBuffers(2, VBO);
+	glBindVertexArray(VAO[0]); // Use the Vertex Array Object at index 0 for the upcoming tasks
 
-	glBindVertexArray(VAO[0]);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); // Bind the Vertex Buffer Object to configure the current VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW); // Initialize the data inside the Vertex Buffer Object
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // Initalize an attribute for the VAO to know where this attribute (vertex positions) are in the VBO
+	glEnableVertexAttribArray(0); // enable the atttributes
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize ... (Colors)
+	glEnableVertexAttribArray(1); // enable
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // Initalize .. (Texture coordinates)
+	glEnableVertexAttribArray(2); // enable
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]); // Use this Element Buffer Object to current VAO
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW); // initialize information inside of EBO
 
 	// Texture loading
 

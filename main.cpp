@@ -8,6 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <random>
+
 void framebudder_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, Shader& shader);
 
@@ -18,7 +20,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a moving object", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a 3D moving object", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create GLFW window" << endl;
@@ -50,8 +52,82 @@ int main(void)
 	};
 
 	unsigned int indicies[] = {
-		3, 1, 0,
-		3, 2, 1
+		// back face
+		3, 1, 0, 
+		3, 2, 1,
+
+		// front face
+		7, 5, 4,
+		7, 6, 5,
+
+		// left face
+		0, 3, 4,
+		4, 7, 3,
+
+		// right face
+		1, 2, 5,
+		5, 6, 2,
+
+		// bottom face
+		0, 1, 5,
+		5, 6, 1,
+
+		// top face
+		2, 3, 6,
+		6, 7, 3,
+
+
+	};
+
+
+	float verticesTest[] = { 
+		-0.5f,-0.5f,-0.5f, 0.0f, 0.0f,
+		0.5f,-0.5f,-0.5f,  1.0f, 0.0f,
+		0.5f, 0.5f,-0.5f, 1.0f, 1.0f,
+
+		-0.5f, -0.5f,-0.5f, 0.0f, 0.0f,
+		-0.5f, 0.5f,-0.5f, 0.0f,1.0f,
+		0.5f, 0.5f,-0.5f, 1.0f,1.0f,
+
+		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
+		0.5f,-0.5f, 0.5f, 1.0f,0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f,1.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f,1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f,1.0f,
+		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
+
+		-0.5f, 0.5f, 0.5f, 1.0f,0.0f,
+		-0.5f, 0.5f,-0.5f, 1.0f,1.0f,
+		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+
+		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
+		-0.5f, 0.5f, 0.5f, 1.0f,0.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
+		0.5f, 0.5f,-0.5f, 1.0f,1.0f,
+		0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+
+		0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+		0.5f,-0.5f, 0.5f, 0.0f,0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
+
+		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+		0.5f,-0.5f,-0.5f, 1.0f,1.0f,
+		0.5f,-0.5f, 0.5f, 1.0f,0.0f,
+
+		0.5f,-0.5f, 0.5f, 1.0f,0.0f,
+		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
+		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+
+		-0.5f, 0.5f,-0.5f, 0.0f,1.0f,
+		0.5f, 0.5f,-0.5f, 1.0f,1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f,0.0f,
+		-0.5f, 0.5f,-0.5f, 0.0f,1.0f
 	};
 
 	int wWidth = 800, wHeight = 600;
@@ -68,7 +144,7 @@ int main(void)
 
 	unsigned char* data = stbi_load("container.jpg", &iWidth, &iHeight, &nrChannels, 0);
 
-	Shader shader("vertexShaders.vs", "fragmentShaders.fs");
+	Shader shader("vertexShaders.vert", "fragmentShaders.frag");
 
 	glViewport(0, 0, wWidth, wHeight); // initialize view of window
 
@@ -81,15 +157,15 @@ int main(void)
 	glBindVertexArray(VAO[0]); // Use the Vertex Array Object at index 0 for the upcoming tasks
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); // Bind the Vertex Buffer Object to configure the current VBO
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW); // Initialize the data inside the Vertex Buffer Object
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTest), verticesTest, GL_STATIC_DRAW); // Initialize the data inside the Vertex Buffer Object
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // Initalize an attribute for the VAO to know where this attribute (vertex positions) are in the VBO
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // Initalize an attribute for the VAO to know where this attribute (vertex positions) are in the VBO
 	glEnableVertexAttribArray(0); // enable the atttributes
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize ... (Colors)
-	glEnableVertexAttribArray(1); // enable
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize ... (Colors)
+	//glEnableVertexAttribArray(1); // enable
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // Initalize .. (Texture coordinates)
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize .. (Texture coordinates)
 	glEnableVertexAttribArray(2); // enable
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]); // Use this Element Buffer Object to current VAO
@@ -146,6 +222,30 @@ int main(void)
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
 
+	glEnable(GL_DEPTH_TEST);
+
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib(0, 100);
+
+	float time = 0;
+	unsigned int tf = 0;
+
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f,-15.0f),
+		glm::vec3(-1.5f,-2.2f,-2.5f),
+		glm::vec3(-3.8f,-2.0f,-12.3f),
+		glm::vec3(2.4f,-0.4f,-3.5f),
+		glm::vec3(-1.7f, 3.0f,-7.5f),
+		glm::vec3(1.3f,-2.0f,-2.5f),
+		glm::vec3(1.5f, 2.0f,-2.5f),
+		glm::vec3(1.5f, 0.2f,-1.5f),
+		glm::vec3(-1.3f, 1.0f,-1.5f)
+	};
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window, shader);
@@ -161,46 +261,54 @@ int main(void)
 		glBindVertexArray(VAO[0]);
 
 
-		glm::mat4 trans(1.0f);
-		float time = glm::sin(glfwGetTime());
-
-
-		trans = glm::translate(trans, glm::vec3(0.5, -0.5, 0.0));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3(time, time, 1.0f));
-
-
-		unsigned int tf = glGetUniformLocation(shader.ID, "transform");
-		glUniformMatrix4fv(tf, 1, GL_FALSE, glm::value_ptr(trans));
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		
-		trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0));
-		trans = glm::scale(trans, glm::vec3(time, time, 1.0f));
-
+		glm::mat4 model(1.0f);
+		time = glm::sin(glfwGetTime());
 		tf = glGetUniformLocation(shader.ID, "transform");
-		glUniformMatrix4fv(tf, 1, GL_FALSE, glm::value_ptr(trans));
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(0.0, 0.0, 0.0));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3(time, time, 1.0f));
-
-		tf = glGetUniformLocation(shader.ID, "transform");
-		glUniformMatrix4fv(tf, 1, GL_FALSE, glm::value_ptr(trans));
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		
+		glm::mat4 view(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(45.0f), wWidth / (float)wHeight, 0.1f, 100.0f);
+
+		model = glm::rotate(model, glm::radians(50.0f) * (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+
+		//glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		////glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		//glDrawArrays(GL_TRIANGLES, 0,36);
+
+
+
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model(1.0f);
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			if (i % 3 == 0)
+			{
+				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(55.0f) * (i + 0.1f), glm::vec3(1.0f, 0.3f, 0.5f));
+			}
+
+			glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			//glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			//glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		}
+
 		glBindVertexArray(0);
 
 		
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	glfwTerminate();

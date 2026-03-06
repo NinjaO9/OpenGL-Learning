@@ -29,8 +29,8 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="fragmentShaders.fs" />
-    <Text Include="vertexShaders.vs" />
+    <Text Include="fragmentShaders.frag" />
+    <Text Include="vertexShaders.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="awesome-face.png" />

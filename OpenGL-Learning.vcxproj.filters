@@ -37,10 +37,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="fragmentShaders.fs">
+    <Text Include="fragmentShaders.frag">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="vertexShaders.vs">
+    <Text Include="vertexShaders.vert">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

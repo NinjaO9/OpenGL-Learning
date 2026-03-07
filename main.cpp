@@ -289,10 +289,7 @@ int main(void)
 			glm::mat4 model(1.0f);
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			if (i % 3 == 0)
-			{
-				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(55.0f) * (i + 0.1f), glm::vec3(1.0f, 0.3f, 0.5f));
-			}
+			if (i % 3 == 0)	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(55.0f) * (i + 0.1f), glm::vec3(1.0f, 0.3f, 0.5f));
 
 			glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			//glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));

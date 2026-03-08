@@ -1,12 +1,20 @@
 
+#ifndef GLAD_H
+#define GLAD_H
 #include <glad/glad.h>
+#endif
 #include <glfw/glfw3.h>
-#include "shader.hpp"
-#include "stb_image.h"
 
+#include "shader.hpp"
+#include "texture2D.hpp"
+//#include "stb_image.h"
+
+#ifndef GLM_H
+#define GLM_H
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#endif
 
 #include <random>
 
@@ -25,7 +33,7 @@ float lastFrame = 0.0f;
 float lastX = 800;
 float lastY = 600;
 
-float yaw, pitch, zoom;
+float yaw, pitch, zoom = 45.0f;
 
 bool firstMouse = true;
 
@@ -161,8 +169,6 @@ int main(void)
 
 	unsigned int EBO[2];
 
-	unsigned char* data = stbi_load("container.jpg", &iWidth, &iHeight, &nrChannels, 0);
-
 	Shader shader("vertexShaders.vert", "fragmentShaders.frag");
 
 	glViewport(0, 0, wWidth, wHeight); // initialize view of window
@@ -191,51 +197,10 @@ int main(void)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW); // initialize information inside of EBO
 	
 	// Texture loading
-
 	stbi_set_flip_vertically_on_load(true);
 
-	glGenTextures(2, texture);
-
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, iWidth, iHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		cout << "Failed to generate texture 1" << endl;
-	}
-	stbi_image_free(data);
-
-	data = stbi_load("awesome-face.png", &iWidth, &iHeight, &nrChannels, 0);
-
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, iWidth, iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		cout << "Failed to generate texture 2" << endl;
-	}
-	stbi_image_free(data);
-	
+	Texture2D texture1("container.jpg", 0, GL_RGB, GL_RGB);
+	Texture2D texture2("awesome-face.png", 0, GL_RGB, GL_RGBA);
 
 	shader.use();
 	shader.setInt("texture1", 0);
@@ -269,6 +234,11 @@ int main(void)
 	glm::mat4 view;
 
 
+	texture1.activate(GL_TEXTURE0);
+	texture1.bind();
+	texture2.activate(GL_TEXTURE1);
+	texture2.bind();
+
 	while (!glfwWindowShouldClose(window))
 	{
 		float currentTime = glfwGetTime();
@@ -281,11 +251,8 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 		shader.use();
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture[0]);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture[1]);
 		glBindVertexArray(VAO[0]);
+		
 
 
 		glm::mat4 model(1.0f);
@@ -306,12 +273,8 @@ int main(void)
 
 		model = glm::rotate(model, glm::radians(50.0f) * (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
-		//glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-		////glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		//glDrawArrays(GL_TRIANGLES, 0,36);
+		shader.setMat4("view", view);
+		shader.setMat4("projection", projection);
 
 
 
@@ -322,10 +285,7 @@ int main(void)
 			model = glm::translate(model, cubePositions[i]);
 			if (i % 3 == 0)	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(55.0f) * (i + 0.1f), glm::vec3(1.0f, 0.3f, 0.5f));
 
-			glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			//glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-			//glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
+			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		}

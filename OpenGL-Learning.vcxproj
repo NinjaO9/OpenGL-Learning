@@ -23,10 +23,14 @@
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.hpp" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="texture.hpp" />
+    <ClInclude Include="texture2D.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="fragmentShaders.frag" />

@@ -11,15 +11,6 @@
 #endif
 using glm::vec3;
 
-#ifndef GENERICS_H
-#define GENERICS_H
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#endif
-
-
 
 class Camera
 {
@@ -82,6 +73,8 @@ public:
 	}
 
 	const vec3& getPosition() const { return position; }
+
+	void setPosition(vec3 pos) { position = pos; }
 
 	const vec3& getForward() const { return forward; }
 	

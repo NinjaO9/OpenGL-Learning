@@ -31,6 +31,13 @@ bool firstMouse = true;
 
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
+glm::vec3 lightPos(1.5f, 1.0f, 2.0f);
+
+float cLightRadius = 2.5f;
+glm::vec3 rotationalCenter(0.0f, 0.0f, 0.0f);
+
+float theta = 0.0f;
+
 int main(void)
 {	
 	glfwInit();
@@ -38,7 +45,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its a moving camera", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its cool lighting", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create GLFW window" << endl;
@@ -60,54 +67,63 @@ int main(void)
 
 	glEnable(GL_DEPTH_TEST);
 
-	float verticesTest[] = { 
-		-0.5f,-0.5f,-0.5f, 0.0f, 0.0f,
-		0.5f,-0.5f,-0.5f,  1.0f, 0.0f,
-		0.5f, 0.5f,-0.5f, 1.0f, 1.0f,
+	float vertices[] = {
+			// positions		// normal
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,-0.5f, 0.0f, 0.0f,
-		-0.5f, 0.5f,-0.5f, 0.0f,1.0f,
-		0.5f, 0.5f,-0.5f, 1.0f,1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
 
-		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
-		0.5f,-0.5f, 0.5f, 1.0f,0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f,1.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-		0.5f, 0.5f, 0.5f, 1.0f,1.0f,
-		-0.5f, 0.5f, 0.5f, 0.0f,1.0f,
-		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f, 0.5f, 0.5f, 1.0f,0.0f,
-		-0.5f, 0.5f,-0.5f, 1.0f,1.0f,
-		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
-		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
-		-0.5f, 0.5f, 0.5f, 1.0f,0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+	};
 
-		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
-		0.5f, 0.5f,-0.5f, 1.0f,1.0f,
-		0.5f,-0.5f,-0.5f, 0.0f,1.0f,
+	float cverts[] =
+	{
+		-0.5f, -0.5f, 1.0f,  0.0f, 0.0f, // bottom left
+		-0.5f, 0.5f, 1.0f,  0.0f, 1.0f, // top left
+		0.5f, -0.5f, 1.0f,  1.0f, 0.0f, //bottom right
+		0.5f, 0.5f, 1.0f,   1.0f, 1.0f, // top right
+	};
 
-		0.5f,-0.5f,-0.5f, 0.0f,1.0f,
-		0.5f,-0.5f, 0.5f, 0.0f,0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
-
-		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
-		0.5f,-0.5f,-0.5f, 1.0f,1.0f,
-		0.5f,-0.5f, 0.5f, 1.0f,0.0f,
-
-		0.5f,-0.5f, 0.5f, 1.0f,0.0f,
-		-0.5f,-0.5f, 0.5f, 0.0f,0.0f,
-		-0.5f,-0.5f,-0.5f, 0.0f,1.0f,
-
-		-0.5f, 0.5f,-0.5f, 0.0f,1.0f,
-		0.5f, 0.5f,-0.5f, 1.0f,1.0f,
-		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
-
-		0.5f, 0.5f, 0.5f, 1.0f,0.0f,
-		-0.5f, 0.5f, 0.5f, 0.0f,0.0f,
-		-0.5f, 0.5f,-0.5f, 0.0f,1.0f
+	unsigned int indicies[] =
+	{
+		0, 1, 2,
+		1, 3, 2,
 	};
 
 	int wWidth = 800, wHeight = 600;
@@ -115,6 +131,8 @@ int main(void)
 	unsigned int VBO[2];
 
 	unsigned int VAO[2];
+
+	unsigned int EBO;
 
 	Shader shader("vertexShaders.vert", "fragmentShaders.frag");
 
@@ -126,17 +144,34 @@ int main(void)
 
 	glBindVertexArray(VAO[0]); // Use the Vertex Array Object at index 0 for the upcoming tasks
 
+	glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
+
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); // Bind the Vertex Buffer Object to configure the current VBO
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTest), verticesTest, GL_STATIC_DRAW); // Initialize the data inside the Vertex Buffer Object
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Initialize the data inside the Vertex Buffer Object
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // Initalize an attribute for the VAO to know where this attribute (vertex positions) are in the VBO
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // Initalize an attribute for the VAO to know where this attribute (vertex positions) are in the VBO
 	glEnableVertexAttribArray(0); // enable the atttributes
 
-	 glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize ... (Colors)
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize ... (Normals)
 	glEnableVertexAttribArray(1); // enable
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize .. (Texture coordinates)
-	glEnableVertexAttribArray(2); // enable
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // Initalize .. (Texture coordinates)
+	//glEnableVertexAttribArray(2); // enable
+
+
+	glBindVertexArray(0);
+	glBindVertexArray(VAO[1]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); // same vertex info as the other VAO
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+
 	
 	// Texture loading
 	stbi_set_flip_vertically_on_load(true);
@@ -148,6 +183,7 @@ int main(void)
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
 
+	Shader lightShader("lightvs.vert", "lightfs.frag");
 
 
 	std::random_device rd;
@@ -179,6 +215,11 @@ int main(void)
 	texture2.activate(GL_TEXTURE1);
 	texture2.bind();
 
+	vec3 objCol = vec3(1.0f, 0.5f, 0.31f);
+	shader.setVec3("objColor", objCol);
+	vec3 lightCol = vec3(1.0f, 1.0f, 1.0f);
+	shader.setVec3("lightColor", lightCol);
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -188,14 +229,14 @@ int main(void)
 		processInput(window, shader);
 		
 
-		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		shader.use();
 
 		glBindVertexArray(VAO[0]);
 		
 
-
+		shader.setVec3("lightPos", lightPos);
 
 		glm::mat4 view;
 		view = glm::lookAt(camera.getPosition(), camera.getPosition() + camera.getForward(), camera.getUp());
@@ -208,19 +249,22 @@ int main(void)
 		shader.setMat4("projection", projection);
 
 
+		glm::mat4 model(1.0f);
 
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			glm::mat4 model(1.0f);
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(55.0f) * (i + 0.1f), glm::vec3(1.0f, 0.3f, 0.5f));
+		model = glm::translate(glm::mat4(1.0f), cubePositions[0]);
+		shader.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-			shader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
 
-		}
-
+		glBindVertexArray(VAO[1]);
+		lightShader.use();
+		lightShader.setMat4("view", view);
+		lightShader.setMat4("projection", projection);
+		model = glm::translate(glm::mat4(1.0f), lightPos);
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		lightShader.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
 		
@@ -279,5 +323,25 @@ void processInput(GLFWwindow* window, Shader& shader)
 	{
 		camera.goRight(deltaTime);
 	}
+
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		// revolve light left
+		theta -= 1.0f * deltaTime;
+		lightPos.x = rotationalCenter.x + (cLightRadius * cos(theta));
+		lightPos.z = rotationalCenter.z + (cLightRadius * sin(theta));
+	}
+
+
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		// revolve light right
+		theta += 1.0f * deltaTime;
+		lightPos.x = rotationalCenter.x + (cLightRadius * cos(theta));
+		lightPos.z = rotationalCenter.z + (cLightRadius * sin(theta));
+	}
+
+
 }
 

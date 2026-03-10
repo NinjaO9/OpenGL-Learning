@@ -67,4 +67,12 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="lightvs.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="lightfs.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

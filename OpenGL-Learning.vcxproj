@@ -41,6 +41,10 @@
     <Image Include="container.jpg" />
     <Image Include="wall.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="lightfs.frag" />
+    <None Include="lightvs.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

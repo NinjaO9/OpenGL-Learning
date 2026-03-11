@@ -66,6 +66,9 @@
     <Image Include="awesome-face.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="DirtBlock.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="lightvs.vert">

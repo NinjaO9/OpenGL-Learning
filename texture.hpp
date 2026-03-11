@@ -47,6 +47,7 @@ public:
 protected:
 	unsigned int ID;
 	int width, height, nrChannels;
+	GLenum detectedFormat;
 
 private:
 

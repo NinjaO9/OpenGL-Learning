@@ -7,10 +7,12 @@ in vec3 Normal;
 
 uniform sampler2D texture1;
 uniform sampler2D texture2;
+
 uniform vec3 objColor;
 uniform vec3 lightColor;
 
 uniform vec3 lightPos;
+uniform vec3 viewPos;
 
 void main()
 {
@@ -21,7 +23,7 @@ void main()
 			0.2);
 	*/
 
-	float ambientStrength = 0.1f;
+	float ambientStrength = 0.1;
 	vec3 ambient = ambientStrength * lightColor;
 
 	vec3 result = ambient * objColor;
@@ -29,10 +31,21 @@ void main()
 	vec3 norm = normalize(Normal);
 	vec3 dir = normalize(lightPos - fragPos);
 
+	float diffuseStrength = 1.5;
+
 	float diff = max(dot(norm, dir), 0.0);
 	vec3 diffuse = diff * lightColor;
+	diffuse = diffuse * diffuseStrength;
 
-	result = (ambient + diffuse) * objColor;
+	float specularStrength = 0.5;
+
+	vec3 viewDir = normalize(viewPos - fragPos);
+	vec3 reflectDir = reflect(-dir, norm);
+
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 specular = specularStrength * spec * lightColor;
+
+	result = (ambient + diffuse + specular) * vec3(texture(texture1, texCoord).xyz);
 	FragColor =  vec4(result, 1.0);//vec4(lightColor * objColor, 1.0);
 
 	//FragColor  = texture(texture1, texCoord);

@@ -1,6 +1,6 @@
 #include "texture2D.hpp"
 
-Texture2D::Texture2D(const char* filename, int channelCount, GLenum internalformat, GLenum format)
+Texture2D::Texture2D(const char* filename, int channelCount, GLenum format)
 {
 	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, channelCount);
 	glGenTextures(1, &ID);
@@ -13,9 +13,11 @@ Texture2D::Texture2D(const char* filename, int channelCount, GLenum internalform
 
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		detectedFormat = format;
+		glTexImage2D(GL_TEXTURE_2D, 0, detectedFormat, width, height, 0, detectedFormat, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		cout << "Successfully generated texture; ID:" << ID << endl;
+
 	}
 	else
 	{

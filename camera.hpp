@@ -72,7 +72,7 @@ public:
 		if (zoom > 45.0f) zoom = 45.0f;
 	}
 
-	const vec3& getPosition() const { return position; }
+	const vec3 getPosition() const { return position; }
 
 	void setPosition(vec3 pos) { position = pos; }
 

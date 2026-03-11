@@ -45,7 +45,7 @@ public:
 	void setBool(const string& name, bool value) const;
 	void setInt(const string& name, int value) const;
 	void setFloat(const string& name, float value) const;
-	void setVec3(const string& name, vec3& vec) const;
+	void setVec3(const string& name, vec3 vec) const;
 	void setMat2(const string& name, mat2& mat) const;
 	void setMat3(const string& name, mat3& mat) const;
 	void setMat4(const string& name, mat4& mat) const;

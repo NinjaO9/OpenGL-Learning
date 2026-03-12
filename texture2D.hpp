@@ -4,7 +4,7 @@ class Texture2D : public Texture
 {
 public:
 
-	Texture2D(const char* filename, int channelCount, GLenum format);
+	Texture2D(const char* filename);
 
 	void setParameter(GLenum pname, GLint param, Type type) const;
 

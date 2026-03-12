@@ -1,21 +1,37 @@
 #include "texture2D.hpp"
 
-Texture2D::Texture2D(const char* filename, int channelCount, GLenum format)
+Texture2D::Texture2D(const char* filename)
 {
-	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, channelCount);
 	glGenTextures(1, &ID);
-	bind();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	bind();
+
 
 	if (data)
 	{
-		detectedFormat = format;
+		if (nrChannels == 1)
+		{
+			detectedFormat = GL_RED;
+		}
+		else if (nrChannels == 3)
+		{
+			detectedFormat = GL_RGB;
+		}
+		else if (nrChannels == 4)
+		{
+			detectedFormat == GL_RGBA;
+		}
+		cout << "Channel count: " << nrChannels << endl;
 		glTexImage2D(GL_TEXTURE_2D, 0, detectedFormat, width, height, 0, detectedFormat, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 		cout << "Successfully generated texture; ID:" << ID << endl;
 
 	}

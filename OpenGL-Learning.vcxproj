@@ -40,6 +40,7 @@
     <Image Include="awesome-face.png" />
     <Image Include="container.jpg" />
     <Image Include="DirtBlock.jpg" />
+    <Image Include="Obsidian.jpg" />
     <Image Include="wall.jpg" />
   </ItemGroup>
   <ItemGroup>

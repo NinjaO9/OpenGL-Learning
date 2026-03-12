@@ -36,7 +36,16 @@ glm::vec3 lightPos(1.5f, 2.0f, 2.0f);
 float cLightRadius = 2.5f;
 glm::vec3 rotationalCenter(0.0f, 1.0f, 0.0f);
 
-float theta = 0.0f;
+vec3 mLPos1 = vec3(0.0f, 0.0f, 0.0f);
+vec3 mLPos2 = vec3(0.0f, 0.0f, 0.0f);
+float mLightRadius = 1.5f;
+glm::vec3 mLRCenter(0.0f, 0.0f, 0.0f);
+
+float cTheta = 0.0f;
+
+float mTheta = 0.0f;
+
+int wWidth = 800, wHeight = 600;
 
 int main(void)
 {	
@@ -45,7 +54,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its cool lighting", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its an obsidian block", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create GLFW window" << endl;
@@ -126,8 +135,6 @@ int main(void)
 		1, 3, 2,
 	};
 
-	int wWidth = 800, wHeight = 600;
-
 	unsigned int VBO[2];
 
 	unsigned int VAO[3];
@@ -145,10 +152,6 @@ int main(void)
 	glBindVertexArray(VAO[0]); // Use the Vertex Array Object at index 0 for the upcoming tasks
 
 	glGenBuffers(1, &EBO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); // Bind the Vertex Buffer Object to configure the current VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Initialize the data inside the Vertex Buffer Object
@@ -171,23 +174,13 @@ int main(void)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-
-	glBindVertexArray(0);
-	glBindVertexArray(VAO[2]);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(bverts), bverts, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
 	glBindVertexArray(0);
 	
 	// Texture loading
 	stbi_set_flip_vertically_on_load(true);
 
-	Texture2D texture1("DirtBlock.jpg", 3, GL_RGB);
-	Texture2D texture2("awesome-face.png", 0, GL_RGBA);
+	Texture2D texture1("Obsidian.jpg");
+	Texture2D texture2("awesome-face.png");
 
 	shader.use();
 	shader.setInt("texture1", 0);
@@ -227,8 +220,14 @@ int main(void)
 
 	vec3 objCol = vec3(1.0f, 0.5f, 0.31f);
 	shader.setVec3("objColor", objCol);
-	vec3 lightCol = vec3(1.0f, 1.0f, 1.0f);
-	shader.setVec3("lightColor", lightCol);
+	vec3 sunCol = vec3(1.0f, 1.0f, 1.0f);
+
+	vec3 mLColor1 = vec3(1.0f, 0.0f, 1.0f);
+	vec3 mLColor2 = vec3(1.0f, 1.0f, 0.0f);
+
+	shader.setVec3("dirLight.color", sunCol);
+	shader.setVec3("pointLights[0].color", mLColor1);
+	shader.setVec3("pointLights[1].color", mLColor2);
 
 
 	while (!glfwWindowShouldClose(window))
@@ -237,20 +236,59 @@ int main(void)
 		deltaTime = currentTime - lastFrame;
 		lastFrame = currentTime;
 		processInput(window, shader);
-		
+
+		mTheta = currentTime * 1.2;
+		mLPos1 = vec3(mLRCenter.x + (mLightRadius * sin(mTheta)), mLightRadius * ((cos(mTheta)) / 1.5 + (sin(mTheta)) / 1.5), mLRCenter.z + (mLightRadius * cos(mTheta)));
+		mLPos2 = vec3(mLRCenter.x + (mLightRadius * sin(mTheta * 1.5)), mLRCenter.y + (mLightRadius * cos(mTheta * 1.5)), mLightRadius * ((cos(mTheta * 1.5))/1.5));
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Main object
 		shader.use();
 
 		glBindVertexArray(VAO[0]);
 		
 		shader.setVec3("viewPos", camera.getPosition());
 
-		shader.setVec3("lightPos", lightPos);
+
+
+		shader.setVec3("material.ambient", vec3(0.05375, 0.05, 0.6625));
+		shader.setVec3("material.diffuse", vec3(0.18275, 0.17, 0.22525));
+		shader.setVec3("material.specular", vec3(0.332741, 0.328634, 0.346435));
+		shader.setFloat("material.shininess", 30.0f);
+
+		shader.setVec3("dirLight.ambient", vec3(1.0, 1.0, 1.0));
+		shader.setVec3("dirLight.diffuse", vec3(5.0, 5.0, 5.0));
+		shader.setVec3("dirLight.specular", vec3(10.0, 10.0, 10.0));
+
+		shader.setVec3("pointLights[0].ambient", vec3(1.0, 1.0, 1.0));
+		shader.setVec3("pointLights[0].diffuse", vec3(10.0, 10.0, 10.0));
+		shader.setVec3("pointLights[0].specular", vec3(10.0, 10.0, 10.0));
+		shader.setFloat("pointLights[0].constant", 1.0f);
+		shader.setFloat("pointLights[0].linear", 0.09f);
+		shader.setFloat("pointLights[0].quadratic", 0.032f);
+
+		shader.setVec3("pointLights[1].ambient", vec3(1.0, 1.0, 1.0));
+		shader.setVec3("pointLights[1].diffuse", vec3(10.0, 10.0, 10.0));
+		shader.setVec3("pointLights[1].specular", vec3(10.0, 10.0, 10.0));
+		shader.setFloat("pointLights[1].constant", 1.0f);
+		shader.setFloat("pointLights[1].linear", 0.09f);
+		shader.setFloat("pointLights[1].quadratic", 0.032f);
+
+		shader.setVec3("spotLight.position", camera.getPosition());
+		shader.setVec3("spotLight.color", sunCol);
+		shader.setVec3("spotLight.direction", camera.getForward());
+		shader.setFloat("spotLight.cutOff", glm::radians(12.5f));
+		shader.setVec3("spotLight.ambient", vec3(1.0, 1.0, 1.0));
+		shader.setVec3("spotLight.diffuse", vec3(5.0, 5.0, 5.0));
+		shader.setVec3("spotLight.specular", vec3(10.0, 10.0, 10.0));
+		shader.setFloat("spotLight.constant", 1.0f);
+		shader.setFloat("spotLight.linear", 0.09f);
+		shader.setFloat("spotLight.quadratic", 0.032f);
 
 		glm::mat4 view;
-		view = glm::lookAt(camera.getPosition(), camera.getPosition() + camera.getForward(), camera.getUp());
+		view = camera.getView();
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getZoom()), wWidth / (float)wHeight, 0.1f, 100.0f);
@@ -259,22 +297,37 @@ int main(void)
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
-
 		glm::mat4 model(1.0f);
 
-		model = glm::translate(glm::mat4(1.0f), cubePositions[0]);
-		shader.setMat4("model", model);
+		for (int i = 0; i < 10; i++)
+		{
 
-		glm::mat3 tiModel(glm::transpose(glm::inverse(model)));
+			model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
+			//model = glm::rotate(model, float(glm::radians(45.0f) * glfwGetTime()), vec3(0.2f, 0.6f, 0.1f));
+			shader.setMat4("model", model);
 
-		shader.setMat3("tiModel", tiModel);
+			glm::mat3 tiModel(glm::transpose(glm::inverse(model)));
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+			shader.setMat3("tiModel", tiModel);
+
+			shader.setVec3("dirLight.direction", cubePositions[i] - lightPos);
+			shader.setVec3("pointLights[0].position", mLPos1);
+			shader.setVec3("pointLights[1].position", mLPos2);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+
 
 		glBindVertexArray(0);
 
+
+
+		// "sun"
+
 		glBindVertexArray(VAO[1]);
 		lightShader.use();
+		lightShader.setVec3("color", sunCol);
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
 		model = glm::translate(glm::mat4(1.0f), lightPos);
@@ -283,7 +336,24 @@ int main(void)
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
+
+		// Little lights
+		// uses the same light shader, just changes some things
+		glBindVertexArray(VAO[1]);
+		model = glm::translate(glm::mat4(1.0f), mLPos1);
+		model = glm::scale(model, glm::vec3(0.25, 0.25, 0.25));
+		lightShader.setMat4("model", model);
+		lightShader.setVec3("color", mLColor1);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		model = glm::translate(glm::mat4(1.0f), mLPos2);
+		model = glm::scale(model, glm::vec3(0.25, 0.25, 0.25));
 		
+		lightShader.setMat4("model", model);
+		lightShader.setVec3("color", mLColor2);
+
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -302,7 +372,13 @@ void framebudder_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	camera.updateCameraForward(xpos, ypos);
+	if (firstMouse)
+	{
+		camera.updateCameraForward(wWidth, wHeight);
+		firstMouse = false;
+	}
+	else
+		camera.updateCameraForward(xpos, ypos);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -325,39 +401,38 @@ void processInput(GLFWwindow* window, Shader& shader)
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		camera.goForward(deltaTime);
+		camera.updateMovement(FORWARD, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		camera.goBackwards(deltaTime);
+		camera.updateMovement(BACKWARD, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		camera.goLeft(deltaTime);
+		camera.updateMovement(LEFT, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		camera.goRight(deltaTime);
+		camera.updateMovement(RIGHT, deltaTime);
 	}
 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
 		// revolve light left
-		theta -= 1.0f * deltaTime;
-		lightPos.x = rotationalCenter.x + (cLightRadius * cos(theta));
-		lightPos.z = rotationalCenter.z + (cLightRadius * sin(theta));
+		cTheta -= 1.0f * deltaTime;
+		lightPos.x = rotationalCenter.x + (cLightRadius * cos(cTheta));
+		lightPos.z = rotationalCenter.z + (cLightRadius * sin(cTheta));
 	}
 
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		// revolve light right
-		theta += 1.0f * deltaTime;
-		lightPos.x = rotationalCenter.x + (cLightRadius * cos(theta));
-		lightPos.z = rotationalCenter.z + (cLightRadius * sin(theta));
+		cTheta += 1.0f * deltaTime;
+		lightPos.x = rotationalCenter.x + (cLightRadius * cos(cTheta));
+		lightPos.z = rotationalCenter.z + (cLightRadius * sin(cTheta));
 	}
 
 
 }
-

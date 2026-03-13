@@ -34,9 +34,6 @@ public:
 		this->yaw = yaw;
 		this->pitch = pitch;
 
-		lastX = 800;
-		lastY = 600;
-
 		updateVectors();
 	}
 	
@@ -50,21 +47,16 @@ public:
 		if (direction == FORWARD)
 			position += cameraSpeed * forward * deltaTime;
 		else if (direction == LEFT)
-			position -= cameraSpeed * glm::normalize(glm::cross(forward, up)) * deltaTime;
+			position -= cameraSpeed * glm::normalize(glm::cross(forward, worldUp)) * deltaTime;
 		else if (direction == RIGHT)
-			position += cameraSpeed * glm::normalize(glm::cross(forward, up)) * deltaTime;
+			position += cameraSpeed * glm::normalize(glm::cross(forward, worldUp)) * deltaTime;
 		else if (direction == BACKWARD)
 			position -= cameraSpeed * forward * deltaTime;
 
 	}
 
-	void updateCameraForward(float xpos, float ypos)
+	void updateCameraForward(float xoffset, float yoffset)
 	{
-		float xoffset = xpos - lastX;
-		float yoffset = ypos - lastY;
-		lastX = xpos;
-		lastY = ypos;
-
 		const float sensitivity = 0.1f;
 		xoffset *= sensitivity;
 		yoffset *= sensitivity;
@@ -100,9 +92,9 @@ public:
 
 	void setPosition(vec3 pos) { position = pos; }
 
-	const vec3& getForward() const { return forward; }
+	const vec3 getForward() const { return forward; }
 
-	const vec3& getRight() const { return  glm::normalize(glm::cross(forward, up)); }
+	const vec3& getRight() const { return  right; }
 	
 	const vec3& getUp() const { return up; }
 
@@ -120,7 +112,5 @@ private:
 	float yaw, pitch, zoom;
 
 	float cameraSpeed;
-
-	float lastX, lastY;
 
 };

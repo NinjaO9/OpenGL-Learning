@@ -29,6 +29,7 @@ float lastFrame = 0.0f;
 
 bool firstMouse = true;
 
+float lastX, lastY;
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
 glm::vec3 lightPos(1.5f, 2.0f, 2.0f);
@@ -183,7 +184,7 @@ int main(void)
 	Texture2D texture2("awesome-face.png");
 
 	shader.use();
-	shader.setInt("texture1", 0);
+	shader.setInt("diffuseMap", 0);
 	shader.setInt("texture2", 1);
 
 	Shader lightShader("lightvs.vert", "lightfs.frag");
@@ -258,7 +259,7 @@ int main(void)
 		shader.setVec3("material.specular", vec3(0.332741, 0.328634, 0.346435));
 		shader.setFloat("material.shininess", 30.0f);
 
-		shader.setVec3("dirLight.ambient", vec3(1.0, 1.0, 1.0));
+		shader.setVec3("dirLight.ambient", vec3(0.5, 0.5, 0.5));
 		shader.setVec3("dirLight.diffuse", vec3(5.0, 5.0, 5.0));
 		shader.setVec3("dirLight.specular", vec3(10.0, 10.0, 10.0));
 
@@ -280,9 +281,10 @@ int main(void)
 		shader.setVec3("spotLight.color", sunCol);
 		shader.setVec3("spotLight.direction", camera.getForward());
 		shader.setFloat("spotLight.cutOff", glm::radians(12.5f));
+		shader.setFloat("spotLight.outerCutOff", glm::radians(17.5f));
 		shader.setVec3("spotLight.ambient", vec3(1.0, 1.0, 1.0));
 		shader.setVec3("spotLight.diffuse", vec3(5.0, 5.0, 5.0));
-		shader.setVec3("spotLight.specular", vec3(10.0, 10.0, 10.0));
+		shader.setVec3("spotLight.specular", vec3(6.0, 6.0, 6.0));
 		shader.setFloat("spotLight.constant", 1.0f);
 		shader.setFloat("spotLight.linear", 0.09f);
 		shader.setFloat("spotLight.quadratic", 0.032f);
@@ -303,7 +305,7 @@ int main(void)
 		{
 
 			model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
-			//model = glm::rotate(model, float(glm::radians(45.0f) * glfwGetTime()), vec3(0.2f, 0.6f, 0.1f));
+			model = glm::rotate(model, float(glm::radians(45.0f) * glfwGetTime()), vec3(0.2f, 0.6f, 0.1f));
 			shader.setMat4("model", model);
 
 			glm::mat3 tiModel(glm::transpose(glm::inverse(model)));
@@ -374,11 +376,18 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
 	{
-		camera.updateCameraForward(wWidth, wHeight);
+		lastX = xpos;
+		lastY = ypos;
 		firstMouse = false;
 	}
-	else
-		camera.updateCameraForward(xpos, ypos);
+
+	float xoffset = xpos - lastX;
+	float yoffset = ypos - lastY;
+	
+	lastX = xpos;
+	lastY = ypos;
+	
+	camera.updateCameraForward(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

@@ -282,12 +282,12 @@ int main(void)
 
 
 		// Directional light
-		shader.setVec3("dirLight.ambient", vec3(0.2, 0.2, 0.2));
+		shader.setVec3("dirLight.ambient", sunCol * 0.2f);
 		shader.setVec3("dirLight.diffuse", sunCol);
-		shader.setVec3("dirLight.specular", vec3(1.0, 1.0, 1.0));
+		shader.setVec3("dirLight.specular", sunCol);
 
 		// "Point light 0 (Purple light)"
-		shader.setVec3("pointLights[0].ambient", vec3(0.05, 0.05, 0.05));
+		shader.setVec3("pointLights[0].ambient", mLColor1 * 0.2f);
 		shader.setVec3("pointLights[0].diffuse", mLColor1);
 		shader.setVec3("pointLights[0].specular", mLColor1);
 		shader.setFloat("pointLights[0].constant", 1.0f);
@@ -296,7 +296,7 @@ int main(void)
 
 
 		// "Point light 1 (Green light)"
-		shader.setVec3("pointLights[1].ambient", vec3(0.2, 0.2, 0.2));
+		shader.setVec3("pointLights[1].ambient", mLColor2 * 0.2f);
 		shader.setVec3("pointLights[1].diffuse", mLColor2);
 		shader.setVec3("pointLights[1].specular", mLColor2);
 		shader.setFloat("pointLights[1].constant", 1.0f);

@@ -36,7 +36,7 @@ float lastFrame = 0.0f;
 
 bool firstMouse = true;
 
-bool hideCursor = true;
+bool activeMouse = true;
 
 float lastX, lastY;
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
@@ -243,7 +243,13 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-
+	Light mainLight(sunCol, DIRECTIONAL);
+	mainLight.intensifyAmbience(0.2f);
+	Light magicLight1(mLColor1, POINT);
+	magicLight1.intensifyAmbience(0.2f);
+	Light magicLight2(mLColor2, POINT);
+	magicLight2.intensifyAmbience(0.2f);
+	Light spotLight(vec3(0.0f), SPOT);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -264,6 +270,9 @@ int main(void)
 		ImGui::NewFrame();
 
 		ImGui::Begin("OpenGL Edit box");
+		ImGui::SliderFloat("Magic Light1 ColorR: ", &mLColor1.x, 0, 1);
+		ImGui::SliderFloat("Magic Light1 ColorG: ", &mLColor1.y, 0, 1);
+		ImGui::SliderFloat("Magic Light1 ColorB: ", &mLColor1.z, 0, 1);
 		ImGui::End();
 
 		// Main object
@@ -280,38 +289,23 @@ int main(void)
 		shader.setInt("material.specularMap", 1);
 		shader.setFloat("material.shininess", 32);
 
+		shader.setLight("dirLight", mainLight);
 
-		// Directional light
-		shader.setVec3("dirLight.ambient", sunCol * 0.2f);
-		shader.setVec3("dirLight.diffuse", sunCol);
-		shader.setVec3("dirLight.specular", sunCol);
-
-		// "Point light 0 (Purple light)"
-		shader.setVec3("pointLights[0].ambient", mLColor1 * 0.2f);
-		shader.setVec3("pointLights[0].diffuse", mLColor1);
-		shader.setVec3("pointLights[0].specular", mLColor1);
+		shader.setLight("pointLights[0]", magicLight1);
 		shader.setFloat("pointLights[0].constant", 1.0f);
 		shader.setFloat("pointLights[0].linear", 0.09f);
 		shader.setFloat("pointLights[0].quadratic", 0.032f);
 
-
-		// "Point light 1 (Green light)"
-		shader.setVec3("pointLights[1].ambient", mLColor2 * 0.2f);
-		shader.setVec3("pointLights[1].diffuse", mLColor2);
-		shader.setVec3("pointLights[1].specular", mLColor2);
+		shader.setLight("pointLights[1]", magicLight2);
 		shader.setFloat("pointLights[1].constant", 1.0f);
 		shader.setFloat("pointLights[1].linear", 0.09f);
 		shader.setFloat("pointLights[1].quadratic", 0.032f);
-
-
-		// "Flash light"
+		
+		shader.setLight("spotLight", spotLight);
 		shader.setVec3("spotLight.position", camera.getPosition());
 		shader.setVec3("spotLight.direction", camera.getForward());
 		shader.setFloat("spotLight.cutOff", cos(glm::radians(12.5f)));
 		shader.setFloat("spotLight.outerCutOff", cos(glm::radians(17.5f)));
-		shader.setVec3("spotLight.ambient", vec3(0.0, 0.0, 0.0));
-		shader.setVec3("spotLight.diffuse", vec3(0.0));
-		shader.setVec3("spotLight.specular", vec3(0.0, 0.0, 0.0));
 		shader.setFloat("spotLight.constant", 1.0f);
 		shader.setFloat("spotLight.linear", 0.09f);
 		shader.setFloat("spotLight.quadratic", 0.032f);
@@ -404,6 +398,7 @@ void framebudder_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (!activeMouse) return;
 	if (firstMouse)
 	{
 		lastX = xpos;
@@ -429,18 +424,15 @@ void processInput(GLFWwindow* window, Shader& shader)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS && activeMouse)
 	{
-		if (hideCursor)
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			hideCursor = false;
-		}
-		else
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			hideCursor = true;
-		}
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		activeMouse = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS && !activeMouse)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		activeMouse = true;
 	}
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 	{

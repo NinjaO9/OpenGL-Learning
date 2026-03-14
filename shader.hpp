@@ -27,6 +27,8 @@ using glm::mat4;
 #include <iostream>
 #endif
 
+#include "light.hpp"
+
 using std::string;
 using std::cout;
 using std::endl;
@@ -49,6 +51,7 @@ public:
 	void setMat2(const string& name, mat2& mat) const;
 	void setMat3(const string& name, mat3& mat) const;
 	void setMat4(const string& name, mat4& mat) const;
+	void setLight(const string& name, Light& attributes) const;
 
 private:
 };

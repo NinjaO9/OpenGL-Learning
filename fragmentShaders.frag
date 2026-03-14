@@ -24,7 +24,7 @@ struct PointLight {
 	vec3 diffuse;
 	vec3 specular;
 
-	float constant;
+	//float constant;
 	float linear;
 	float quadratic;
 };
@@ -32,7 +32,7 @@ struct PointLight {
 struct SpotLight {
 	vec3 position;
 	vec3 direction;
-	vec3 color;
+
 	float cutOff;
 	float outerCutOff;
 
@@ -40,11 +40,11 @@ struct SpotLight {
 	vec3 diffuse;
 	vec3 specular;
 
-	float constant;
+	//float constant;
 	float linear;
 	float quadratic;
 };
-
+#define CONSTANT 1
 #define NR_POINT_LIGHTS 2
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
@@ -109,7 +109,7 @@ vec3 calculatePointLight(PointLight light, vec3 norm)
 	vec3 dir = normalize(light.position - fragPos);
 
 	float dist = length(light.position - fragPos);
-	float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+	float attenuation = 1.0 / (CONSTANT + light.linear * dist + light.quadratic * (dist * dist));
 
 	vec3 diffuse = getDiffuseLighting(norm, dir, light.diffuse);
 
@@ -133,7 +133,7 @@ vec3 calculateSpotLight(SpotLight light, vec3 norm)
 
 	vec3 specular = getSpecularLighting(norm, lightDir, light.specular) * intensity;
 
-	float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+	float attenuation = 1.0 / (CONSTANT + light.linear * dist + light.quadratic * (dist * dist));
 
 
 	return ((ambient) + (diffuse * attenuation) + (specular * attenuation));

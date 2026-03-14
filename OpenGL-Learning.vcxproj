@@ -20,6 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
+    <ClCompile Include="include\imgui\imgui.cpp" />
+    <ClCompile Include="include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="include\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="include\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -27,6 +34,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hpp" />
+    <ClInclude Include="include\imgui\imconfig.h" />
+    <ClInclude Include="include\imgui\imgui.h" />
+    <ClInclude Include="include\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="include\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="include\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="include\imgui\imgui_internal.h" />
+    <ClInclude Include="include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="include\imgui\imstb_textedit.h" />
+    <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.hpp" />
@@ -39,8 +55,11 @@
   <ItemGroup>
     <Image Include="awesome-face.png" />
     <Image Include="container.jpg" />
+    <Image Include="container2.png" />
+    <Image Include="container2_specular.png" />
     <Image Include="DirtBlock.jpg" />
     <Image Include="Obsidian.jpg" />
+    <Image Include="Obsidian_Specular.jpg" />
     <Image Include="wall.jpg" />
   </ItemGroup>
   <ItemGroup>
@@ -144,7 +163,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw;$(SolutionDir)/include/imgui</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);opengl32.lib;glfw3.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -161,7 +180,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw;$(SolutionDir)/include/imgui</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);opengl32.lib;glfw3.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

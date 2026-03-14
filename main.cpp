@@ -8,7 +8,14 @@
 #include "shader.hpp"
 #include "texture2D.hpp"
 #include "camera.hpp"
-//#include "stb_image.h"
+
+#ifndef IMGUI_H 
+#define IMGUI_H
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
+#endif
+
 
 #ifndef GLM_H
 #define GLM_H
@@ -29,6 +36,8 @@ float lastFrame = 0.0f;
 
 bool firstMouse = true;
 
+bool hideCursor = true;
+
 float lastX, lastY;
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
@@ -46,7 +55,7 @@ float cTheta = 0.0f;
 
 float mTheta = 0.0f;
 
-int wWidth = 800, wHeight = 600;
+int wWidth = 1600, wHeight = 1200;
 
 int main(void)
 {	
@@ -55,7 +64,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Oh my god its an obsidian block", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(wWidth, wHeight, "Oh my god its an obsidian block", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create GLFW window" << endl;
@@ -181,11 +190,10 @@ int main(void)
 	stbi_set_flip_vertically_on_load(true);
 
 	Texture2D texture1("Obsidian.jpg");
-	Texture2D texture2("awesome-face.png");
+	Texture2D texture2("Obsidian_Specular.jpg");
 
 	shader.use();
-	shader.setInt("diffuseMap", 0);
-	shader.setInt("texture2", 1);
+
 
 	Shader lightShader("lightvs.vert", "lightfs.frag");
 
@@ -219,16 +227,22 @@ int main(void)
 	texture2.activate(GL_TEXTURE1);
 	texture2.bind();
 
-	vec3 objCol = vec3(1.0f, 0.5f, 0.31f);
-	shader.setVec3("objColor", objCol);
 	vec3 sunCol = vec3(1.0f, 1.0f, 1.0f);
-
 	vec3 mLColor1 = vec3(1.0f, 0.0f, 1.0f);
-	vec3 mLColor2 = vec3(1.0f, 1.0f, 0.0f);
+	vec3 mLColor2 = vec3(0.0f, 1.0f, 0.0f);
 
-	shader.setVec3("dirLight.color", sunCol);
-	shader.setVec3("pointLights[0].color", mLColor1);
-	shader.setVec3("pointLights[1].color", mLColor2);
+	
+
+
+
+	// Initalize IMGUI
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();  (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+
 
 
 	while (!glfwWindowShouldClose(window))
@@ -245,6 +259,13 @@ int main(void)
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("OpenGL Edit box");
+		ImGui::End();
+
 		// Main object
 		shader.use();
 
@@ -253,38 +274,44 @@ int main(void)
 		shader.setVec3("viewPos", camera.getPosition());
 
 
+		// Material config
+		shader.setVec3("material.ambient", vec3(0.5, 0.5, 0.5));
+		shader.setInt("material.diffuseMap", 0);
+		shader.setInt("material.specularMap", 1);
+		shader.setFloat("material.shininess", 32);
 
-		shader.setVec3("material.ambient", vec3(0.05375, 0.05, 0.6625));
-		shader.setVec3("material.diffuse", vec3(0.18275, 0.17, 0.22525));
-		shader.setVec3("material.specular", vec3(0.332741, 0.328634, 0.346435));
-		shader.setFloat("material.shininess", 30.0f);
 
-		shader.setVec3("dirLight.ambient", vec3(0.5, 0.5, 0.5));
-		shader.setVec3("dirLight.diffuse", vec3(5.0, 5.0, 5.0));
-		shader.setVec3("dirLight.specular", vec3(10.0, 10.0, 10.0));
+		// Directional light
+		shader.setVec3("dirLight.ambient", vec3(0.2, 0.2, 0.2));
+		shader.setVec3("dirLight.diffuse", sunCol);
+		shader.setVec3("dirLight.specular", vec3(1.0, 1.0, 1.0));
 
-		shader.setVec3("pointLights[0].ambient", vec3(1.0, 1.0, 1.0));
-		shader.setVec3("pointLights[0].diffuse", vec3(10.0, 10.0, 10.0));
-		shader.setVec3("pointLights[0].specular", vec3(10.0, 10.0, 10.0));
+		// "Point light 0 (Purple light)"
+		shader.setVec3("pointLights[0].ambient", vec3(0.05, 0.05, 0.05));
+		shader.setVec3("pointLights[0].diffuse", mLColor1);
+		shader.setVec3("pointLights[0].specular", mLColor1);
 		shader.setFloat("pointLights[0].constant", 1.0f);
 		shader.setFloat("pointLights[0].linear", 0.09f);
 		shader.setFloat("pointLights[0].quadratic", 0.032f);
 
-		shader.setVec3("pointLights[1].ambient", vec3(1.0, 1.0, 1.0));
-		shader.setVec3("pointLights[1].diffuse", vec3(10.0, 10.0, 10.0));
-		shader.setVec3("pointLights[1].specular", vec3(10.0, 10.0, 10.0));
+
+		// "Point light 1 (Green light)"
+		shader.setVec3("pointLights[1].ambient", vec3(0.2, 0.2, 0.2));
+		shader.setVec3("pointLights[1].diffuse", mLColor2);
+		shader.setVec3("pointLights[1].specular", mLColor2);
 		shader.setFloat("pointLights[1].constant", 1.0f);
 		shader.setFloat("pointLights[1].linear", 0.09f);
 		shader.setFloat("pointLights[1].quadratic", 0.032f);
 
+
+		// "Flash light"
 		shader.setVec3("spotLight.position", camera.getPosition());
-		shader.setVec3("spotLight.color", sunCol);
 		shader.setVec3("spotLight.direction", camera.getForward());
-		shader.setFloat("spotLight.cutOff", glm::radians(12.5f));
-		shader.setFloat("spotLight.outerCutOff", glm::radians(17.5f));
-		shader.setVec3("spotLight.ambient", vec3(1.0, 1.0, 1.0));
-		shader.setVec3("spotLight.diffuse", vec3(5.0, 5.0, 5.0));
-		shader.setVec3("spotLight.specular", vec3(6.0, 6.0, 6.0));
+		shader.setFloat("spotLight.cutOff", cos(glm::radians(12.5f)));
+		shader.setFloat("spotLight.outerCutOff", cos(glm::radians(17.5f)));
+		shader.setVec3("spotLight.ambient", vec3(0.0, 0.0, 0.0));
+		shader.setVec3("spotLight.diffuse", vec3(0.0));
+		shader.setVec3("spotLight.specular", vec3(0.0, 0.0, 0.0));
 		shader.setFloat("spotLight.constant", 1.0f);
 		shader.setFloat("spotLight.linear", 0.09f);
 		shader.setFloat("spotLight.quadratic", 0.032f);
@@ -329,12 +356,12 @@ int main(void)
 
 		glBindVertexArray(VAO[1]);
 		lightShader.use();
-		lightShader.setVec3("color", sunCol);
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
 		model = glm::translate(glm::mat4(1.0f), lightPos);
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		lightShader.setMat4("model", model);
+		lightShader.setVec3("color", sunCol);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
@@ -356,6 +383,9 @@ int main(void)
 
 
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -399,6 +429,19 @@ void processInput(GLFWwindow* window, Shader& shader)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+	{
+		if (hideCursor)
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			hideCursor = false;
+		}
+		else
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			hideCursor = true;
+		}
+	}
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe

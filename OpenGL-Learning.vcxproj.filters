@@ -31,6 +31,9 @@
     <Filter Include="Header Files\imgui">
       <UniqueIdentifier>{c670db7c-e2b8-4c56-9c1d-b3101f21d45e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Backpack">
+      <UniqueIdentifier>{f0ea6df3-2ee8-4bca-8ba5-fe9467eb4043}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -69,7 +72,10 @@
     <ClCompile Include="stb_image.cpp">
       <Filter>Source Files\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="light.cpp">
+    <ClCompile Include="mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,6 +125,12 @@
     <ClInclude Include="light.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="fragmentShaders.frag">
@@ -126,6 +138,9 @@
     </Text>
     <Text Include="vertexShaders.vert">
       <Filter>Resource Files\Shaders</Filter>
+    </Text>
+    <Text Include="backpack\source_attribution.txt">
+      <Filter>Resource Files\Backpack</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
@@ -153,12 +168,30 @@
     <Image Include="container2_specular.png">
       <Filter>Resource Files\Images</Filter>
     </Image>
+    <Image Include="backpack\ao.jpg">
+      <Filter>Resource Files\Backpack</Filter>
+    </Image>
+    <Image Include="backpack\normal.png">
+      <Filter>Resource Files\Backpack</Filter>
+    </Image>
+    <Image Include="backpack\roughness.jpg">
+      <Filter>Resource Files\Backpack</Filter>
+    </Image>
+    <Image Include="backpack\texture_diffuse.jpg">
+      <Filter>Resource Files\Backpack</Filter>
+    </Image>
+    <Image Include="backpack\texture_specular.jpg">
+      <Filter>Resource Files\Backpack</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="lightvs.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="lightfs.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="backpack\backpack.mtl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

@@ -27,7 +27,8 @@
     <ClCompile Include="include\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="include\imgui\imgui_tables.cpp" />
     <ClCompile Include="include\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="light.cpp" />
+    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="model.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -45,17 +46,25 @@
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="light.hpp" />
+    <ClInclude Include="mesh.hpp" />
+    <ClInclude Include="model.hpp" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.hpp" />
     <ClInclude Include="texture2D.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="backpack\source_attribution.txt" />
     <Text Include="fragmentShaders.frag" />
     <Text Include="vertexShaders.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="awesome-face.png" />
+    <Image Include="backpack\ao.jpg" />
+    <Image Include="backpack\normal.png" />
+    <Image Include="backpack\roughness.jpg" />
+    <Image Include="backpack\texture_diffuse.jpg" />
+    <Image Include="backpack\texture_specular.jpg" />
     <Image Include="container.jpg" />
     <Image Include="container2.png" />
     <Image Include="container2_specular.png" />
@@ -65,6 +74,7 @@
     <Image Include="wall.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="backpack\backpack.mtl" />
     <None Include="lightfs.frag" />
     <None Include="lightvs.vert" />
   </ItemGroup>
@@ -165,8 +175,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw;$(SolutionDir)/include/imgui</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);opengl32.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw;$(SolutionDir)/include/imgui;$(SolutionDir)/include/assimp</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);opengl32.lib;glfw3.lib;assimp-vc143-mtd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,8 +192,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw;$(SolutionDir)/include/imgui</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);opengl32.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/include;$(SolutionDir)/include/glfw;$(SolutionDir)/include/imgui;$(SolutionDir)/include/assimp</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);opengl32.lib;glfw3.lib;assimp-vc143-mtd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

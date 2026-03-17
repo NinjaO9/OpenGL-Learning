@@ -20,7 +20,7 @@ Texture2D::Texture2D(const char* filename)
 		}
 		else if (nrChannels == 4)
 		{
-			detectedFormat == GL_RGBA;
+			detectedFormat = GL_RGBA;
 		}
 		cout << "Channel count: " << nrChannels << endl;
 		glTexImage2D(GL_TEXTURE_2D, 0, detectedFormat, width, height, 0, detectedFormat, GL_UNSIGNED_BYTE, data);

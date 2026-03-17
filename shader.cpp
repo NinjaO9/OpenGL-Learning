@@ -117,12 +117,11 @@ void Shader::setMat4(const string& name, mat4& mat) const
 
 void Shader::setLight(const string& name, Light& light) const
 {
-	vec3* attributes = light.extractAttributes();
+	vec3* attributes = light.getAttributes();
 	if (attributes == nullptr) return;
 	glUniform3fv(glGetUniformLocation(ID, (name + ".ambient").c_str()), 1, glm::value_ptr(attributes[AMBIENCE]));
 	glUniform3fv(glGetUniformLocation(ID, (name + ".diffuse").c_str()), 1, glm::value_ptr(attributes[DIFFUSE]));
 	glUniform3fv(glGetUniformLocation(ID, (name + ".specular").c_str()), 1, glm::value_ptr(attributes[SPECULAR]));
-	delete attributes;
 
 }
 

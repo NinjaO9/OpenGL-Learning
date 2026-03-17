@@ -1,6 +1,6 @@
 #include "texture.hpp"
 
-class Texture2D : public Texture
+class Texture2D : public Texturec
 {
 public:
 

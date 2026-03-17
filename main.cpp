@@ -8,6 +8,7 @@
 #include "shader.hpp"
 #include "texture2D.hpp"
 #include "camera.hpp"
+#include "model.hpp"
 
 #ifndef IMGUI_H 
 #define IMGUI_H
@@ -189,8 +190,8 @@ int main(void)
 	// Texture loading
 	stbi_set_flip_vertically_on_load(true);
 
-	Texture2D texture1("Obsidian.jpg");
-	Texture2D texture2("Obsidian_Specular.jpg");
+	//Texture2D texture1("Obsidian.jpg");
+	//Texture2D texture2("Obsidian_Specular.jpg");
 
 	shader.use();
 
@@ -222,10 +223,10 @@ int main(void)
 
 
 
-	texture1.activate(GL_TEXTURE0);
-	texture1.bind();
-	texture2.activate(GL_TEXTURE1);
-	texture2.bind();
+	//texture1.activate(GL_TEXTURE0);
+	//texture1.bind();
+	//texture2.activate(GL_TEXTURE1);
+	//texture2.bind();
 
 	vec3 sunCol = vec3(1.0f, 1.0f, 1.0f);
 	vec3 mLColor1 = vec3(1.0f, 0.0f, 1.0f);
@@ -244,12 +245,15 @@ int main(void)
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	Light mainLight(sunCol, DIRECTIONAL);
-	mainLight.intensifyAmbience(0.2f);
+	mainLight.intensifyAmbience(0.005f);
 	Light magicLight1(mLColor1, POINT);
 	magicLight1.intensifyAmbience(0.2f);
 	Light magicLight2(mLColor2, POINT);
 	magicLight2.intensifyAmbience(0.2f);
 	Light spotLight(vec3(0.0f), SPOT);
+
+	
+	Model backpack("backpack/backpack.obj");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -263,6 +267,7 @@ int main(void)
 		mLPos2 = vec3(mLRCenter.x + (mLightRadius * sin(mTheta * 1.5)), mLRCenter.y + (mLightRadius * cos(mTheta * 1.5)), mLightRadius * ((cos(mTheta * 1.5))/1.5));
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -274,7 +279,7 @@ int main(void)
 		ImGui::SliderFloat("Magic Light1 ColorG: ", &mLColor1.y, 0, 1);
 		ImGui::SliderFloat("Magic Light1 ColorB: ", &mLColor1.z, 0, 1);
 		ImGui::End();
-
+		magicLight1.setColor(mLColor1);
 		// Main object
 		shader.use();
 
@@ -309,6 +314,8 @@ int main(void)
 		shader.setFloat("spotLight.constant", 1.0f);
 		shader.setFloat("spotLight.linear", 0.09f);
 		shader.setFloat("spotLight.quadratic", 0.032f);
+		
+
 
 		glm::mat4 view;
 		view = camera.getView();
@@ -322,29 +329,41 @@ int main(void)
 
 		glm::mat4 model(1.0f);
 
-		for (int i = 0; i < 10; i++)
-		{
+		model = glm::translate(glm::mat4(1.0f), cubePositions[0]);
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setMat4("model", model);
 
-			model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
-			model = glm::rotate(model, float(glm::radians(45.0f) * glfwGetTime()), vec3(0.2f, 0.6f, 0.1f));
-			shader.setMat4("model", model);
+		//for (int i = 0; i < 10; i++)
+		//{
 
-			glm::mat3 tiModel(glm::transpose(glm::inverse(model)));
+		//	model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
+		//	model = glm::rotate(model, float(glm::radians(45.0f) * glfwGetTime()), vec3(0.2f, 0.6f, 0.1f));
+		//	shader.setMat4("model", model);
 
-			shader.setMat3("tiModel", tiModel);
+		//	glm::mat3 tiModel(glm::transpose(glm::inverse(model)));
 
-			shader.setVec3("dirLight.direction", cubePositions[i] - lightPos);
-			shader.setVec3("pointLights[0].position", mLPos1);
-			shader.setVec3("pointLights[1].position", mLPos2);
+		//	shader.setMat3("tiModel", tiModel);
 
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		//	shader.setVec3("dirLight.direction", cubePositions[i] - lightPos);
+		//	shader.setVec3("pointLights[0].position", mLPos1);
+		//	shader.setVec3("pointLights[1].position", mLPos2);
 
+
+		//	//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
+
+		glm::mat3 tiModel(glm::transpose(glm::inverse(model)));
+
+		shader.setMat3("tiModel", tiModel);
+		shader.setVec3("dirLight.direction", cubePositions[0] - lightPos);
+		shader.setVec3("pointLights[0].position", mLPos1);
+		shader.setVec3("pointLights[1].position", mLPos2);
+		backpack.Draw(shader);
 
 
 		glBindVertexArray(0);
 
-
+		
 
 		// "sun"
 

@@ -45,6 +45,7 @@ public:
 		quadratic = quad;
 
 		type = ltype;
+		updateAttributes();
 	}
 
 	Light(vec3 ambi, vec3 diff, vec3 spec, LIGHT_TYPE ltype, float line = 0.5f, float quad = 0.05f)
@@ -57,23 +58,30 @@ public:
 		quadratic = quad;
 
 		type = ltype;
+		updateAttributes();
+	}
+
+	~Light()
+	{
+		delete[] attributes;
 	}
 	
 	vec3 getAmbience() const { return ambience; }
 	vec3 getDiffuse() const { return diffuse; }
 	vec3 getSpecular() const { return specular; }
 
-	void intensifyAmbience(float intensity = 1.0f) { this->ambience *= intensity; }
-	void intensifyDiffuse(float intensity = 1.0f) { this->diffuse *= intensity; }
-	void intensifySpecular(float intensity = 1.0f) { this->specular *= intensity; }
+	void intensifyAmbience(float intensity = 1.0f) { this->ambience *= intensity; this->sIAmb = intensity; }
+	void intensifyDiffuse(float intensity = 1.0f) { this->diffuse *= intensity; this->sIDiff = intensity;}
+	void intensifySpecular(float intensity = 1.0f) { this->specular *= intensity; this->sISpec = intensity;}
 
-	vec3*& extractAttributes() const
+	vec3* getAttributes() const { return attributes; }
+
+	void setColor(vec3 col)
 	{
-		vec3* attributes = new vec3[3];
-		attributes[AMBIENCE] = ambience;
-		attributes[DIFFUSE] = diffuse;
-		attributes[SPECULAR] = specular;
-		return attributes;
+		this->color = col;
+		setAmbience();
+		setDiffuse();
+		setSpecular();
 	}
 
 	vec3 color;
@@ -86,7 +94,38 @@ private:
 	vec3 ambience;
 	vec3 diffuse;
 	vec3 specular;
+	vec3* attributes = nullptr;
+
+	float sIAmb = 1.0f;
+	float sIDiff = 1.0f;
+	float sISpec = 1.0f;
 
 	LIGHT_TYPE type;
 
+	void updateAttributes()
+	{
+		if (attributes != nullptr)
+		{
+			delete[] attributes;
+		}
+		attributes = new vec3[3];
+		attributes[AMBIENCE] = ambience;
+		attributes[DIFFUSE] = diffuse;
+		attributes[SPECULAR] = specular;
+	}
+
+	void setAmbience()
+	{
+		ambience = color * sIAmb;
+	}
+
+	void setDiffuse()
+	{
+		diffuse = color * sIDiff;
+	}
+
+	void setSpecular()
+	{
+		specular = color * sISpec;
+	}
 };
